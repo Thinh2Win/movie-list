@@ -9,6 +9,7 @@ var movies = [
   {title: 'Sunshine'},
   {title: 'Ex Machina'},
 ];
+//keep movies and list to null to save on memory
 
 class App extends React.Component {
   constructor(props) {
@@ -17,9 +18,18 @@ class App extends React.Component {
       movies: movies,
       addedMovies: [],
       movieText:'',
-      toWatch: [],
-      watched: [],
+      moviesToWatch:[],
+
     };
+    this.filterMovies = this.filterMovies.bind(this);
+    this.handleMovieText = this.handleMovieText.bind(this);
+    this.handleMovieSubmit = this.handleMovieSubmit.bind(this);
+    this.toWatchClick = this.toWatchClick.bind(this);
+    this.changeMovieList = this.changeMovieList.bind(this);
+  }
+
+  changeMovieList (newMovies) {
+    this.state.moviesToWatch.push(newMovies);
   }
 
   handleMovieText (movieText) {
@@ -31,21 +41,15 @@ class App extends React.Component {
     this.setState({movies: this.state.addedMovies})
   }
 
-  handleChange (textInput) {
-    let filteredMovies = this.state.movies.filter((movies) => {
-      if (movies.title.includes(textInput)) {
-        return movies;
-      }
+  filterMovies (value) {
+    let filteredMovies = this.state.movies.filter((movies, index) => {
+      return movies.title.toLowerCase().includes(value.toLowerCase());
     });
     this.setState({movies: filteredMovies})
   }
 
-  handleWatchedClick() {
-    this.setState({movies: this.state.watched})
-  }
-
-  handleToWatchClick() {
-    this.setState({movies: this.state.toWatch})
+  toWatchClick () {
+    this.setState({movies: this.state.moviesToWatch})
   }
 
   render() {
@@ -53,25 +57,22 @@ class App extends React.Component {
     return (
       <div>
         <h2>Movie List</h2>
-        <AddMovieTitle handleMovieText={this.handleMovieText.bind(this)}
-                  handleMovieSubmit={this.handleMovieSubmit.bind(this)}
+        <AddMovieTitle handleMovieText={this.handleMovieText}
+                  handleMovieSubmit={this.handleMovieSubmit}
         />
-        <Search handleChange={this.handleChange.bind(this)}/>
-        <WatchedButton handleWatchedClick={this.handleWatchedClick.bind(this)}
-                        handleToWatchClick={this.handleToWatchClick.bind(this)}
-        />
-        <MovieList movies={this.state.movies}/>
+        <Search filterMovies={this.filterMovies}/>
+        <MovieButtons toWatchClick={this.toWatchClick}/>
+        <MovieList movies={this.state.movies} changeMovieList={this.changeMovieList}/>
       </div>
     )
   }
 }
 
-var WatchedButton = ({handleWatchedClick, handleToWatchClick}) => (
-      <div>
-        <button onClick={(e) => this.handleWatchedClick()}>Watched</button>
-        <button onClick={(e) => this.handleToWatchClick()}>To Watch</button>
-      </div>
+var MovieButtons = (props) => (
+  <div>
+    <button>Watched</button>
+    <button onClick={(e) => {props.toWatchClick()}}>To Watch</button>
+  </div>
 )
-
 
 export default App;
