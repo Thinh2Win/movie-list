@@ -1,25 +1,18 @@
+// const axios = require('axios').default;
+import axios from 'axios';
 import React from 'react';
 import MovieList from './MovieList.jsx';
 import Search from './Search.jsx';
 import AddMovieTitle from './AddMovieTitle.jsx';
-var movies = [
-  {title: 'Mean Girls'},
-  {title: 'Hackers'},
-  {title: 'The Grey'},
-  {title: 'Sunshine'},
-  {title: 'Ex Machina'},
-];
-//keep movies and list to null to save on memory
+import MovieButtons from './MovieList.jsx';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      movies: movies,
+      movies: [{movieName: 'Rush Hour'}],
       addedMovies: [],
       movieText:'',
-      moviesToWatch:[],
-
     };
     this.filterMovies = this.filterMovies.bind(this);
     this.handleMovieText = this.handleMovieText.bind(this);
@@ -28,8 +21,27 @@ class App extends React.Component {
     this.changeMovieList = this.changeMovieList.bind(this);
   }
 
-  changeMovieList (newMovies) {
-    this.state.moviesToWatch.push(newMovies);
+  componentDidMount() {
+    axios.get('/api/movies')
+      .then(response => {
+        console.log(response.data);
+        this.setState({movies: response.data})
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+
+  changeMovieList (ToggledMovies) {
+    // if moviesToWatch contains newMovies
+    // remove newMovies from moviesToWatch array
+    // else push new movies into moviesToWatch array
+
+    // let newArray = this.state.moviesToWatch;
+    // newArray.push(newMovies);
+    this.setState({
+      moviesToWatch: ToggledMovies
+    });
   }
 
   handleMovieText (movieText) {
@@ -37,13 +49,13 @@ class App extends React.Component {
   }
 
   handleMovieSubmit () {
-    this.state.addedMovies.push({title: this.state.movieText})
+    this.state.addedMovies.push({movieName: this.state.movieText})
     this.setState({movies: this.state.addedMovies})
   }
 
   filterMovies (value) {
     let filteredMovies = this.state.movies.filter((movies, index) => {
-      return movies.title.toLowerCase().includes(value.toLowerCase());
+      return movies.movieName.toLowerCase().includes(value.toLowerCase());
     });
     this.setState({movies: filteredMovies})
   }
@@ -53,7 +65,6 @@ class App extends React.Component {
   }
 
   render() {
-
     return (
       <div>
         <h2>Movie List</h2>
@@ -61,18 +72,14 @@ class App extends React.Component {
                   handleMovieSubmit={this.handleMovieSubmit}
         />
         <Search filterMovies={this.filterMovies}/>
-        <MovieButtons toWatchClick={this.toWatchClick}/>
-        <MovieList movies={this.state.movies} changeMovieList={this.changeMovieList}/>
+        <MovieList movies={this.state.movies}
+          changeMovieList={this.changeMovieList}
+          toWatchClick={this.toWatchClick}
+        />
       </div>
     )
   }
 }
 
-var MovieButtons = (props) => (
-  <div>
-    <button>Watched</button>
-    <button onClick={(e) => {props.toWatchClick()}}>To Watch</button>
-  </div>
-)
 
 export default App;

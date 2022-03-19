@@ -1,16 +1,31 @@
 import React from 'react';
-var MovieList = ({movies, changeMovieList}) => (
-  <ul>
-    {movies.map((movies, key) => <MovieEntry key= {key} movies= {movies} changeMovieList={changeMovieList}/>)}
-  </ul>
-)
+
+class MovieList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state= {
+      // movies: this.props.movies,
+
+    }
+  }
+
+  render() {
+    return (
+      <div>
+        <MovieButtons toWatchClick={this.toWatchClick}/>
+      <ul>
+        {this.props.movies.map((movie, key) => <MovieEntry key= {movie.movieName} movies= {movie} />)}
+      </ul>
+      </div>
+    )
+  }
+}
 
 class MovieEntry extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       Watched: true,
-
     };
     this.handleToggleClick = this.handleToggleClick.bind(this);
   }
@@ -19,20 +34,29 @@ class MovieEntry extends React.Component {
       Watched: !prevState.Watched
     }));
     if (this.state.Watched) {
-      this.props.changeMovieList(this.props.movies);
+      // this.props.changeMovieList();
     }
+    // else if clicked again, remove movie from list?
   }
 
   render() {
     return(
       <div>
-        <span>{this.props.movies.title}</span>
+        <span>{this.props.movies.movieName}</span>
       <button onClick={this.handleToggleClick}>
         {this.state.Watched ? 'Watched' : 'To Watch'}
       </button>
+
       </div>
     )
   }
 }
 
+
+var MovieButtons = (props) => (
+  <div>
+    <button>Watched</button>
+    <button onClick={(e) => {props.toWatchClick()}}>To Watch</button>
+  </div>
+)
 export default MovieList;
