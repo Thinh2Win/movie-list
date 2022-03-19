@@ -11,6 +11,7 @@ var movies = [
 ];
 
 const mysql = require('mysql2');
+app.use(express.json());
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -25,7 +26,6 @@ var insertMovies = function(moviesArray) {
     );
   });
 };
-var initialize = _.once(insertMovies);
 
 var getAllMovies = function(callback) {
   connection.query(
@@ -47,12 +47,13 @@ connection.connect(err => {
     console.log(err);
   } else {
     console.log('connected');
-    // initialize(movies);
+    // insertMovies(movies);
   }
 });
 
 app.use(express.static('client/dist'));
 
+// -------sends all movies to client ------- //
 app.get('/api/movies', (req, res) => {
   getAllMovies((err, movies) => {
     if (err) {
@@ -63,20 +64,37 @@ app.get('/api/movies', (req, res) => {
   });
 });
 
-app.get('/api/movies/search?', (req, res) => {
+// -------handles search get request, returns specified movies------- //
+app.get('/api/movies/movies?', (req, res) => {
   const movieQuery = req.query.movieName;
   connection.query (
-    `SELECT movieName From movies WHERE movieName = '${movieQuery}'`,
-    function(err, movie) {
+    `SELECT movieName From movies WHERE movieName LIKE '%${movieQuery}%'`,
+    function(err, movies) {
       if (err) {
         res.status(404).send(err);
       } else {
-        res.send(movie);
+        res.send(movies);
       }
     }
   );
 });
 
+// -------allows addition of movie to db------- //
+app.post('/api/movies', (req, res) => {
+  connection.query(
+    `INSERT INTO movies (movieName) VALUES('${req.body.movieName}')`,
+    function(err) {
+      if (err) {
+        res.status(500).send(err);
+      } else {
+        res.send('movie added');
+      }
+    }
+  );
+});
+
+// ----------toggles movie between watched/to watch----------//
+// app.patch()
 
 app.listen(PORT, () => {
   console.log(`Server listening on port: ${PORT}`);

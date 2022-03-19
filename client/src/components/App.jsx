@@ -11,20 +11,17 @@ class App extends React.Component {
     super(props);
     this.state = {
       movies: [{movieName: 'Rush Hour'}],
-      addedMovies: [],
-      movieText:'',
+      movieData:{},
     };
-    this.filterMovies = this.filterMovies.bind(this);
     this.handleMovieText = this.handleMovieText.bind(this);
     this.handleMovieSubmit = this.handleMovieSubmit.bind(this);
-    this.toWatchClick = this.toWatchClick.bind(this);
-    this.changeMovieList = this.changeMovieList.bind(this);
+    this.searchForMovie = this.searchForMovie.bind(this);
+    this.addMovies = this.addMovies.bind(this);
   }
 
   componentDidMount() {
-    axios.get('/api/movies')
+     axios.get('/api/movies')
       .then(response => {
-        console.log(response.data);
         this.setState({movies: response.data})
       })
       .catch(err => {
@@ -32,36 +29,35 @@ class App extends React.Component {
       })
   }
 
-  changeMovieList (ToggledMovies) {
-    // if moviesToWatch contains newMovies
-    // remove newMovies from moviesToWatch array
-    // else push new movies into moviesToWatch array
+  addMovies(movieData) {
+    axios.post('/api/movies', movieData)
+    .then(response => {
+      axios.get('/api/movies')
+      .then(response => {
+        this.setState({movies: response.data})
+      })
+    })
+    .catch(err => {
+      console.log(err);
+    })
+  }
 
-    // let newArray = this.state.moviesToWatch;
-    // newArray.push(newMovies);
-    this.setState({
-      moviesToWatch: ToggledMovies
+  searchForMovie(query) {
+    axios.get('/api/movies/movies', {params: {movieName: query}})
+    .then(response => {
+      this.setState({movies: response.data});
     });
   }
 
-  handleMovieText (movieText) {
-    this.setState({movieText: movieText})
+  handleMovieText (movieTitle) {
+    var movieData = {
+      movieName: movieTitle,
+    }
+    this.setState({movieData: movieData})
   }
 
   handleMovieSubmit () {
-    this.state.addedMovies.push({movieName: this.state.movieText})
-    this.setState({movies: this.state.addedMovies})
-  }
-
-  filterMovies (value) {
-    let filteredMovies = this.state.movies.filter((movies, index) => {
-      return movies.movieName.toLowerCase().includes(value.toLowerCase());
-    });
-    this.setState({movies: filteredMovies})
-  }
-
-  toWatchClick () {
-    this.setState({movies: this.state.moviesToWatch})
+    this.addMovies(this.state.movieData);
   }
 
   render() {
@@ -71,11 +67,10 @@ class App extends React.Component {
         <AddMovieTitle handleMovieText={this.handleMovieText}
                   handleMovieSubmit={this.handleMovieSubmit}
         />
-        <Search filterMovies={this.filterMovies}/>
-        <MovieList movies={this.state.movies}
-          changeMovieList={this.changeMovieList}
-          toWatchClick={this.toWatchClick}
+        <Search filterMovies={this.filterMovies}
+                searchForMovie={this.searchForMovie}
         />
+        <MovieList movies={this.state.movies}/>
       </div>
     )
   }
@@ -83,3 +78,4 @@ class App extends React.Component {
 
 
 export default App;
+

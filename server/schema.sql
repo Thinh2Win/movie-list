@@ -6,7 +6,9 @@ USE movieList;
 
 CREATE TABLE movies (
   id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  movieName varchar(50) NOT NULL UNIQUE
+  movieName varchar(50) NOT NULL UNIQUE,
+  watched int,
+  toWatch int
 );
 
 

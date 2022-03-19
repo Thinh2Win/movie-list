@@ -5,14 +5,13 @@ class MovieList extends React.Component {
     super(props);
     this.state= {
       // movies: this.props.movies,
-
     }
   }
 
   render() {
     return (
       <div>
-        <MovieButtons toWatchClick={this.toWatchClick}/>
+        <MovieButtons/>
       <ul>
         {this.props.movies.map((movie, key) => <MovieEntry key= {movie.movieName} movies= {movie} />)}
       </ul>
@@ -56,7 +55,7 @@ class MovieEntry extends React.Component {
 var MovieButtons = (props) => (
   <div>
     <button>Watched</button>
-    <button onClick={(e) => {props.toWatchClick()}}>To Watch</button>
+    <button>To Watch</button>
   </div>
 )
 export default MovieList;
